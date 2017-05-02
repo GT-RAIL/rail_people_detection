@@ -1,0 +1,4 @@
+string desired_frame                    # Desired TF reference frame for the returned position
+Centroid[] centroids                    # Query centroids in the image
+---
+geometry_msgs/PointStamped[] positions  # Corresponding positions from Point Cloud
