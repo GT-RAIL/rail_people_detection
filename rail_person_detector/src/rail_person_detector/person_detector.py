@@ -10,7 +10,7 @@ from struct import unpack_from
 from threading import Lock
 
 from rail_object_detector.msg import Detections as ObjectDetections
-from rail_person_detector.msg import People, Person, Centroid
+from rail_people_detection_msgs.msg import People, Person, Centroid
 
 from rail_person_detector.position_mapper import CentroidPositionMapper
 

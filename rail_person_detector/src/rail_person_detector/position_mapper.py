@@ -11,7 +11,7 @@ from threading import Lock
 
 from geometry_msgs.msg import PointStamped, Point
 from sensor_msgs.msg import PointCloud2
-from rail_person_detector.srv import CentroidPositionQuery, \
+from rail_people_detection_msgs.srv import CentroidPositionQuery, \
     CentroidPositionQueryResponse
 
 class CentroidPositionMapper(object):
