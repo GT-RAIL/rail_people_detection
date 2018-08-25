@@ -5,8 +5,8 @@ project(rail_person_detector)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
-  rail_object_detector
   geometry_msgs
+  rail_object_detector_msgs
   rail_people_detection_msgs
   rospy
   std_msgs
@@ -148,10 +148,6 @@ include_directories(
 # )
 
 # Install the python scripts at the appropriate location
-catkin_install_python(PROGRAMS nodes/centroid_to_pos
-  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-)
-
 catkin_install_python(PROGRAMS nodes/detector_node
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )

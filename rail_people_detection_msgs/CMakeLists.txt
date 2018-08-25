@@ -5,7 +5,7 @@ project(rail_people_detection_msgs)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
-  rail_object_detector
+  rail_object_detector_msgs
   geometry_msgs
   message_generation
   std_msgs
@@ -69,7 +69,7 @@ add_service_files(
 generate_messages(
   DEPENDENCIES
   geometry_msgs
-  rail_object_detector
+  rail_object_detector_msgs
   std_msgs
 )
 
@@ -105,11 +105,10 @@ generate_messages(
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES person_detector
-#  CATKIN_DEPENDS
-#    geometry_msgs
-#    message_runtime
-#    rospy
-#    tf
+ CATKIN_DEPENDS
+   geometry_msgs
+   rail_object_detector_msgs
+   std_msgs
 #  DEPENDS system_lib
 )
 
