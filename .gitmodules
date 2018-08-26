@@ -1,0 +1,4 @@
+[submodule "leg_tracker"]
+	path = leg_tracker
+	url = git@github.com:petschekr/leg_tracker.git
+	branch = fetch
