@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(rail_person_detector)
+project(rail_people_detector)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
