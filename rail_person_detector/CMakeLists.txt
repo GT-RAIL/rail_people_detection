@@ -6,7 +6,7 @@ project(rail_person_detector)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
   geometry_msgs
-  rail_object_detector_msgs
+  rail_object_detection_msgs
   rail_people_detection_msgs
   rospy
   std_msgs
@@ -108,6 +108,7 @@ catkin_package(
 #  LIBRARIES person_detector
   CATKIN_DEPENDS
     geometry_msgs
+    rail_object_detection_msgs
     rail_people_detection_msgs
     rospy
     tf
