@@ -58,7 +58,7 @@ class ClosestPersonDetector(object):
 
         # Iterate over the people and find the closest
         for detected_person in msg.people:
-            detected_pose = PoseStamped(header=msg.header, pose=msg.pose)
+            detected_pose = PoseStamped(header=msg.header, pose=detected_person.pose)
             try:
                 detected_pose = self.listener.transformPose(self.desired_pose_frame, detected_pose)
             except ExtrapolationException as e:
@@ -109,14 +109,14 @@ class ClosestPersonDetector(object):
         # If the distance exceeds the threshold, then don't associate the face
         # with the leg
         with self.closest_person_lock:
-            distance_func = lambda A, B: np.sqrt((A.pose.position.x - B.point.x) ** 2 + (A.pose.position.y - B.point.y) ** 2)
+            distance_func = lambda A, B: np.sqrt((A.pose.position.x - B.pos.x) ** 2 + (A.pose.position.y - B.pos.y) ** 2)
             if closest_face is None:
                 pass
             elif self.closest_person is None:
                 self.last_face_timestamp = rospy.Time.now()
                 self.closest_person = Person(header=closest_face.header)
                 self.closest_person.pose.position = closest_face.pos
-                self.closest_person.pose.quaternion.w = 1.0
+                self.closest_person.pose.orientation.w = 1.0
                 self.closest_person.detection_context.pose_source = DetectionContext.POSE_FROM_FACE
             elif distance_func(self.closest_person, closest_face) < self.position_match_threshold:
                 self.last_face_timestamp = rospy.Time.now()
@@ -133,7 +133,8 @@ class ClosestPersonDetector(object):
             # Check to see if the information on a person's face is stale
             if rospy.Time.now() - self.last_face_timestamp > self.face_remembrance_threshold:
                 with self.closest_person_lock:
-                    self.closest_person.detection_context.pose_source = DetectionContext.POSE_FROM_LEGS
+                    if self.closest_person is not None:
+                        self.closest_person.detection_context.pose_source = DetectionContext.POSE_FROM_LEGS
 
             # Otherwise, check to see if we should publish the latest detection
             with self.closest_person_lock:
