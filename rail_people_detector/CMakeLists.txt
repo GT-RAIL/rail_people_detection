@@ -150,7 +150,10 @@ include_directories(
 # )
 
 # Install the python scripts at the appropriate location
-catkin_install_python(PROGRAMS nodes/detector_node
+catkin_install_python(PROGRAMS nodes/people_from_objects_node
+  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
+catkin_install_python(PROGRAMS nodes/closest_person_node
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 

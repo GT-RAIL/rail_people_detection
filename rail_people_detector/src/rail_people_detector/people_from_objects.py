@@ -14,12 +14,13 @@ from rail_people_detection_msgs.msg import People, Person, Centroid
 
 from rail_people_detection_utils.position_mapper import CentroidPositionMapper
 
+
 class PersonDetector(object):
     """
     Takes the output from the object detector, and splits the output stream into
     separate topics - one for the objects and another for the people. The people
     have corresponding X,Y,Z information as well in the form of
-    geometry_msgs/PointStamped
+    geometry_msgs/Pose
     """
 
     def __init__(self):
@@ -33,8 +34,8 @@ class PersonDetector(object):
             "~object_detector_topic",
             "/object_detector/detections"
         )
-        self.desired_position_frame = rospy.get_param(
-            "~desired_position_frame",
+        self.desired_pose_frame = rospy.get_param(
+            "~desired_pose_frame",
             "base_link"
         )
         self.position_match_threshold = rospy.get_param(
@@ -82,27 +83,30 @@ class PersonDetector(object):
         :return: list of positions and bounding boxes that are valid
         """
         valid_people = []
-        for idx,pos in enumerate(positions):
+        for idx, pos in enumerate(positions):
+            # Check that point is valid
             if (np.isnan(pos.point.x) or np.isnan(pos.point.y) or np.isnan(pos.point.z)):
                 continue
 
-            matched = False
-            if self.desired_position_frame == 'base_link' and pos.point.z > 1.524:
-                # Silva hack: Centroid is above 5 ft. Buzz is messing with us
+            # Silva hack: Centroid is above 5 ft. Buzz is messing with us
+            if self.desired_pose_frame == 'base_link' and pos.point.z > 1.524:
                 continue
+
+            # Check for duplicate detections
+            matched = False
             if self.position_match_threshold is not None:
-                for i,valid in enumerate(valid_people):
-                    if (self.distance_func(valid.position.point, pos.point) <= self.position_match_threshold):
-                        if (self.area_func(valid.bounding_box) < self.area_func(candidates[idx].bounding_box)):
+                for i, valid_person in enumerate(valid_people):
+                    if (self.distance_func(valid_person.pose.position, pos.point) <= self.position_match_threshold):
+                        if (self.area_func(valid_person.bounding_box) < self.area_func(candidates[idx].bounding_box)):
                             valid_people[i] = candidates[idx]
-                            valid_people[i].position = pos
+                            valid_people[i].pose.position = pos
                         # Assume only one match possible
                         matched = True
                         break
 
             # True when no match AND when no threshold is present
             if not matched:
-                candidates[idx].position = pos
+                candidates[idx].pose.position = pos
                 valid_people.append(candidates[idx])
 
         return valid_people
@@ -120,16 +124,16 @@ class PersonDetector(object):
         for obj in detections.objects:
             if obj.label == 'person':
                 candidate_people.append(
-                    Person(bounding_box=obj, bb_header=detections.header)
+                    Person(bounding_box=obj, header=detections.header)
                 )
             else:
                 objects_msg.objects.append(obj)
 
-        # Transform the people
+        # Transform the people. Returns PointStamped
         positions = self.mapper.convert_centroids_to_point([
             Centroid(p.bounding_box.centroid_x, p.bounding_box.centroid_y)
             for p in candidate_people
-        ], self.desired_position_frame)
+        ], self.desired_pose_frame)
 
         # If there was some TF error, ABORT
         if positions is None:
@@ -141,3 +145,11 @@ class PersonDetector(object):
         # Publish the resulting topics
         self.people_topic.publish(people_msg)
         self.objects_topic.publish(objects_msg)
+
+    def spin(self):
+        """
+        Run the detector
+        """
+        # All the publishing is handled by the callbacks, so we have nothing to
+        # do here
+        rospy.spin()
