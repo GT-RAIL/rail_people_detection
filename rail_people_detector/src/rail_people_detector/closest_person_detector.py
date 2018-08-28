@@ -17,7 +17,7 @@ from tf2_py import ExtrapolationException
 from geometry_msgs.msg import PointStamped, PoseStamped
 from people_msgs.msg import PositionMeasurementArray
 from leg_tracker.msg import PersonArray
-from rail_people_detection_msgs.msg import Person
+from rail_people_detection_msgs.msg import Person, DetectionContext
 
 
 class ClosestPersonDetector(object):
@@ -29,15 +29,19 @@ class ClosestPersonDetector(object):
 
     def __init__(self):
         # Internal parameters
+        self.publish_rate = rospy.get_param("~publish_rate", 10.0)
         self.listener = TransformListener()
         self.desired_pose_frame = rospy.get_param(
             "~desired_pose_frame",
             "base_link"
         )
+        self.position_match_threshold = rospy.get_param("~position_match_threshold", 0.3)
+        self.face_remembrance_threshold = rospy.Duration(rospy.get_param("~face_remembrance_threshold", 1.0))
 
         # Variables to keep track of state
-        self.people = []
-        self.people_lock = Lock()
+        self.closest_person = None
+        self.closest_person_lock = Lock()
+        self.last_face_timestamp = rospy.Time(0)
 
         # The subscribers and publishers
         self.face_sub = rospy.Subscriber(
@@ -46,32 +50,45 @@ class ClosestPersonDetector(object):
             self.face_callback
         )
         self.leg_sub = rospy.Subscriber("people_tracked", PersonArray, self.leg_callback)
-        self.person_pub = rospy.Publisher('~closest_person', Person, queue_size=10)
+        self.closest_person_pub = rospy.Publisher('~closest_person', Person, queue_size=10)
 
     def leg_callback(self, msg):
-        # Acquire a lock to the people
-        with self.people_lock:
-            self.people = []
+        closest_distance = np.inf
+        closest_person = None
 
-            # Iterate over the people and add them to those that we know
-            for detected_person in msg.people:
-                detected_pose = PoseStamped(header=msg.header, pose=msg.pose)
-                try:
-                    detected_pose = self.listener.transformPose(self.desired_pose_frame, detected_pose)
-                except ExtrapolationException as e:
-                    continue
+        # Iterate over the people and find the closest
+        for detected_person in msg.people:
+            detected_pose = PoseStamped(header=msg.header, pose=msg.pose)
+            try:
+                detected_pose = self.listener.transformPose(self.desired_pose_frame, detected_pose)
+            except ExtrapolationException as e:
+                continue
 
-                # Add the person
-                person = Person(
+            # If this is the closest person, save them
+            distance = np.sqrt(detected_pose.pose.position.x ** 2 + detected_pose.pose.position.y ** 2)
+            if distance < closest_distance:
+                closest_distance = distance
+                closest_person = Person(
                     header=detected_pose.header,
-                    id=detected_person.id,
+                    id=str(detected_person.id),
                     pose=detected_pose.pose
                 )
-                self.people.append(person)
+
+        # Acquire a lock to the people and update the closest person's position
+        # We don't want to be staring at feet...
+        with self.closest_person_lock:
+            if closest_person is None:
+                self.closest_person = None
+            elif self.closest_person is None or self.closest_person.id != closest_person.id:
+                self.closest_person = closest_person
+                self.closest_person.detection_context.pose_source = DetectionContext.POSE_FROM_LEGS
+            else:  # self.closest_person.id == closest_person.id
+                self.closest_person.pose.position.x = closest_person.pose.position.x
+                self.closest_person.pose.position.y = closest_person.pose.position.y
 
     def face_callback(self, msg):
         # Iterate through the message and find the closest face
-        closest_pos = None
+        closest_face = None
         closest_distance = np.inf
         for face in msg.people:
             pos = PointStamped(header=face.header, point=face.pos)
@@ -84,36 +101,44 @@ class ClosestPersonDetector(object):
             distance = np.sqrt(pos.point.x ** 2 + pos.point.y ** 2 + pos.point.z ** 2)
             if distance < closest_distance:
                 closest_distance = distance
-                closest_pos = pos
+                closest_face = face
+                closest_face.header = pos.header
+                closest_face.pos = pos.point
 
-        # If we have a closest face, then find the corresponding person in the
-        # leg detection messages
-        if closest_pos is None:
-            return
-        with self.people_lock:
-            if len(self.people) == 0:
-                return
-
-            closest_distance = np.inf
-            closest_person = None
-            for person in self.people:
-                distance = np.sqrt(
-                    (person.pose.position.x - closest_pos.point.x) ** 2
-                    + (person.pose.position.y - closest_pos.point.y) ** 2
-                )
-                if distance < closest_distance:
-                    closest_distance = distance
-                    closest_person = person
-
-            # If we have a person, publish them!
-            if closest_person is not None:
-                closest_person.pose.position = closest_pos.point
-                self.person_pub.publish(closest_person)
+        # Now check the distance between the closest face and the closest leg.
+        # If the distance exceeds the threshold, then don't associate the face
+        # with the leg
+        with self.closest_person_lock:
+            distance_func = lambda A, B: np.sqrt((A.pose.position.x - B.point.x) ** 2 + (A.pose.position.y - B.point.y) ** 2)
+            if closest_face is None:
+                pass
+            elif self.closest_person is None:
+                self.last_face_timestamp = rospy.Time.now()
+                self.closest_person = Person(header=closest_face.header)
+                self.closest_person.pose.position = closest_face.pos
+                self.closest_person.pose.quaternion.w = 1.0
+                self.closest_person.detection_context.pose_source = DetectionContext.POSE_FROM_FACE
+            elif distance_func(self.closest_person, closest_face) < self.position_match_threshold:
+                self.last_face_timestamp = rospy.Time.now()
+                self.closest_person.pose.position = closest_face.pos
+                self.closest_person.detection_context.pose_source = DetectionContext.POSE_FROM_FACE
 
     def spin(self):
         """
         Run the detector
         """
-        # All the publishing is handled by the callbacks, so we have nothing to
-        # do here
-        rospy.spin()
+        # Publish the detected closest person at the desired frequency
+        rate = rospy.Rate(self.publish_rate)
+        while not rospy.is_shutdown():
+            # Check to see if the information on a person's face is stale
+            if rospy.Time.now() - self.last_face_timestamp > self.face_remembrance_threshold:
+                with self.closest_person_lock:
+                    self.closest_person.detection_context.pose_source = DetectionContext.POSE_FROM_LEGS
+
+            # Otherwise, check to see if we should publish the latest detection
+            with self.closest_person_lock:
+                if self.closest_person is not None:
+                    self.closest_person_pub.publish(self.closest_person)
+
+            # Sleep
+            rate.sleep()

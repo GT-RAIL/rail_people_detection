@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launch>
+  <!-- The tf frame relative to which the closest person will be calculated -->
+  <arg name="robot_base_frame" default="base_link" />
+
+  <!-- Launch the face detector -->
+  <include file="$(find rail_face_detector_launch)/launch/face_detector.launch">
+    <arg name="wg_detector" value="true" />
+  </include>
+
+  <!-- Launch the laser filter and the leg detector -->
+  <include file="$(find map_laser)/lfilter.launch"/>
+  <include file="$(find leg_tracker)/launch/joint_leg_tracker.launch"/>
+
+  <!-- Launch the closest person detector node -->
+  <node name="rail_people_detector" pkg="rail_people_detector" type="closest_person_node" output="screen">
+    <param name="desired_pose_frame" value="$(arg robot_base_frame)" />
+  </node>
+</launch>

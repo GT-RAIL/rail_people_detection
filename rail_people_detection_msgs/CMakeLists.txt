@@ -50,6 +50,7 @@ add_message_files(
   Centroid.msg
   Person.msg
   People.msg
+  DetectionContext.msg
 )
 
 ## Generate services in the 'srv' folder

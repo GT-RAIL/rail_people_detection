@@ -10,7 +10,7 @@ from struct import unpack_from
 from threading import Lock
 
 from rail_object_detection_msgs.msg import Detections as ObjectDetections
-from rail_people_detection_msgs.msg import People, Person, Centroid
+from rail_people_detection_msgs.msg import People, Person, Centroid, DetectionContext
 
 from rail_people_detection_utils.position_mapper import CentroidPositionMapper
 
@@ -107,6 +107,7 @@ class PersonDetector(object):
             # True when no match AND when no threshold is present
             if not matched:
                 candidates[idx].pose.position = pos
+                candidates[idx].detection_context.pose_source = DetectionContext.POSE_FROM_OBJECT
                 valid_people.append(candidates[idx])
 
         return valid_people
