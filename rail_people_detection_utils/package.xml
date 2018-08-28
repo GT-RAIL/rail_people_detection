@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>rail_people_detector</name>
+  <name>rail_people_detection_utils</name>
   <version>1.0.1</version>
-  <description>The rail_people_detector package</description>
+  <description>The rail_people_detection_utils package</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag -->
   <!-- Example:  -->
@@ -44,13 +44,11 @@
   <depend>geometry_msgs</depend>
   <depend>rail_object_detection_msgs</depend>
   <depend>rail_people_detection_msgs</depend>
-  <depend>rail_people_detection_utils</depend>
   <depend>rospy</depend>
   <depend>std_msgs</depend>
-
-  <exec_depend>sensor_msgs</exec_depend>
-  <exec_depend>tf</exec_depend>
-  <exec_depend>visualization_msgs</exec_depend>
+  <depend>sensor_msgs</depend>
+  <depend>tf</depend>
+  <depend>visualization_msgs</depend>
 
 
   <!-- The export tag contains other, unspecified, tags -->

@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from rail_person_detector.person_detector import PersonDetector
+from rail_people_detector.person_detector import PersonDetector
 import rospy
 
 log_lvls = {

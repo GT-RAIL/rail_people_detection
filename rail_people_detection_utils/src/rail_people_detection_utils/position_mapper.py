@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 # Module that takes a maps a point in an image to the desired reference frame
 
+import numpy as np
+
 import rospy
 import tf
-import numpy as np
 
 from math import isnan
 from struct import unpack_from
@@ -14,6 +15,7 @@ from sensor_msgs.msg import PointCloud2
 from rail_people_detection_msgs.srv import CentroidPositionQuery, \
     CentroidPositionQueryResponse
 
+
 class CentroidPositionMapper(object):
     """
     This class takes the centroid of an object as X,Y pixel values and
@@ -21,21 +23,24 @@ class CentroidPositionMapper(object):
     Requires that the point cloud be present
     """
 
-    def __init__(self, use_service=True):
+    def __init__(self, point_cloud_topic, point_cloud_frame, transform_wait_timeout=2.0, use_service=True):
         """
         Initialize parameters and listeners
+        :point_cloud_topic: The topic on which the point cloud related to images
+            is currently published on
+        :point_cloud_frame: The expected tf frame for incoming point clouds. We
+            do NOT currently assert that point clouds are actually in this frame
+        :transform_wait_timeout: The maximum amount of time to wait for a valid
+            transform between the desired frame and the point cloud frame
         :param use_service: Boolean for whether a separate service should be
             initialized to communicate with this node
         """
         self.use_service = use_service
 
         # Parameters
-        self.pcl_topic = rospy.get_param("~kinect_pcl_topic",
-                                         "/kinect/qhd/points")
-        self.pcl_frame = rospy.get_param("~kinect_pcl_frame",
-                                         "kinect_rgb_optical_frame")
-        self.transform_wait_timeout = rospy.get_param(
-            "~transform_wait_timeout", 2.0)
+        self.point_cloud_topic = point_cloud_topic
+        self.point_cloud_frame = point_cloud_frame
+        self.transform_wait_timeout = transform_wait_timeout
 
         # Storage
         self.point_cloud = None # Stored point cloud
@@ -47,10 +52,11 @@ class CentroidPositionMapper(object):
 
         # Listeners
         self.tf_listener = tf.TransformListener()
-        self.pcl_listener = rospy.Subscriber(self.pcl_topic, PointCloud2,
+        self.pcl_listener = rospy.Subscriber(self.point_cloud_topic, PointCloud2,
                                              self._save_point_cloud)
         if self.use_service:
-            self.query_server = rospy.Service("~query", CentroidPositionQuery,
+            self.query_server = rospy.Service("~centroid_position_query",
+                                              CentroidPositionQuery,
                                               self._handle_centroid_query)
 
     def _save_point_cloud(self, point_cloud):
@@ -145,19 +151,19 @@ class CentroidPositionMapper(object):
             else: # Transform the point to the desired reference frame
                 try:
                     self.tf_listener.waitForTransform(
-                        self.pcl_frame,
+                        self.point_cloud_frame,
                         desired_frame,
                         rospy.Time(0),
                         rospy.Duration(self.transform_wait_timeout)
                     )
                     (trans, rot) = self.tf_listener.lookupTransform(
-                        self.pcl_frame,
+                        self.point_cloud_frame,
                         desired_frame,
                         rospy.Time(0)
                     )
                 except tf.Exception as e:
                     rospy.logerr("Error transforming %s to %s: %s"
-                                 % (self.pcl_frame, desired_frame, str(e)))
+                                 % (self.point_cloud_frame, desired_frame, str(e)))
                     return None
 
                 pcl_R_desired =\

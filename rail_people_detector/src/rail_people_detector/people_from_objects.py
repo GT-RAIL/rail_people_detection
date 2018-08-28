@@ -12,7 +12,7 @@ from threading import Lock
 from rail_object_detection_msgs.msg import Detections as ObjectDetections
 from rail_people_detection_msgs.msg import People, Person, Centroid
 
-from rail_person_detector.position_mapper import CentroidPositionMapper
+from rail_people_detection_utils.position_mapper import CentroidPositionMapper
 
 class PersonDetector(object):
     """
@@ -41,9 +41,21 @@ class PersonDetector(object):
             "~position_match_threshold",
             None
         )
+        self.point_cloud_topic = rospy.get_param(
+            "~point_cloud_topic",
+            "/kinect/qhd/points"
+        )
+        self.point_cloud_frame = rospy.get_param(
+            "~point_cloud_frame",
+            "kinect_rgb_optical_frame"
+        )
 
         # Initialize the converter
-        self.mapper = CentroidPositionMapper(False)
+        self.mapper = CentroidPositionMapper(
+            self.point_cloud_topic,
+            self.point_cloud_frame,
+            use_service=False
+        )
 
         # Output topic
         self.objects_topic = rospy.Publisher('~objects', ObjectDetections,
@@ -71,10 +83,7 @@ class PersonDetector(object):
         """
         valid_people = []
         for idx,pos in enumerate(positions):
-            if (np.isnan(pos.point.x)
-                or np.isnan(pos.point.y)
-                or np.isnan(pos.point.z)
-            ):
+            if (np.isnan(pos.point.x) or np.isnan(pos.point.y) or np.isnan(pos.point.z)):
                 continue
 
             matched = False

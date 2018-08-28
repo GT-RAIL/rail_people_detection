@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(rail_people_detector)
+project(rail_people_detection_utils)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
@@ -8,9 +8,11 @@ find_package(catkin REQUIRED COMPONENTS
   geometry_msgs
   rail_object_detection_msgs
   rail_people_detection_msgs
-  rail_people_detection_utils
   rospy
+  sensor_msgs
   std_msgs
+  tf
+  visualization_msgs
 )
 
 ## System dependencies are found with CMake's conventions
@@ -112,7 +114,10 @@ catkin_package(
     rail_object_detection_msgs
     rail_people_detection_msgs
     rospy
+    sensor_msgs
+    std_msgs
     tf
+    visualization_msgs
 #  DEPENDS system_lib
 )
 
@@ -150,9 +155,9 @@ include_directories(
 # )
 
 # Install the python scripts at the appropriate location
-catkin_install_python(PROGRAMS nodes/detector_node
-  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-)
+# catkin_install_python(PROGRAMS nodes/detector_node
+#   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+# )
 
 #############
 ## Install ##
