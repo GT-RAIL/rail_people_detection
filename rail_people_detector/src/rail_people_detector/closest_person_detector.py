@@ -176,9 +176,10 @@ class ClosestPersonDetector(object):
         closest_person = None
         with self.leg_detections_lock:
             for detected_person in self.leg_detections:
-                # rospy.logwarn("{}".format(self.person_face_distance_func(detected_person, closest_face)))
+                rospy.logwarn("{}".format(self.person_face_distance_func(detected_person, closest_face)))
                 if closest_face is not None and self.person_face_distance_func(detected_person, closest_face) < self.position_match_threshold:
                     closest_person = detected_person
+                    closest_person.pose.position = closest_face.pos
                     break
 
         # Now check the distance between the closest face and the closest leg.
