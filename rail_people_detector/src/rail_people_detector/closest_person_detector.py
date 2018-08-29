@@ -48,9 +48,10 @@ class ClosestPersonDetector(object):
             (A.pose.position.x - B.pos.x) ** 2
             + (A.pose.position.y - B.pos.y) ** 2
         )
-        self.person_leg_distance_func = lambda A, B: np.sqrt(
-            (A.pose.position.x - B.pose.position.x) ** 2
-            + (A.pose.position.y - B.pose.position.y) ** 2
+        self.leg_detection_is_closest_face = lambda detected_person: (
+            self.closest_person is not None
+            and self.closest_person.detection_context.pose_source == DetectionContext.POSE_FROM_FACE
+            and self.closest_person.id == str(detected_person.id)
         )
 
         # The subscribers and publishers
@@ -64,7 +65,6 @@ class ClosestPersonDetector(object):
 
     def leg_callback(self, msg):
         closest_distance = np.inf
-        face_distance = np.inf
         closest_person = None
 
         # Iterate over the people and find the closest
@@ -75,14 +75,10 @@ class ClosestPersonDetector(object):
             except ExtrapolationException as e:
                 continue
 
-            # If this is the closest person, save them. However, if this is the
-            # closest person to the last face, prefer that
+            # If this is the closest person, save them. However, if this person
+            # has the same ID as the person with a face, prefer that
             person_distance = np.sqrt(detected_pose.pose.position.x ** 2 + detected_pose.pose.position.y ** 2)
-            if self.closest_person is not None \
-                    and self.closest_person.detection_context.pose_source == DetectionContext.POSE_FROM_FACE:
-                face_distance = self.person_leg_distance_func(self.closest_person, detected_pose)
-
-            if face_distance < self.position_match_threshold or person_distance < closest_distance:
+            if self.leg_detection_is_closest_face(detected_person) or person_distance < closest_distance:
                 closest_distance = person_distance
                 closest_person = Person(
                     header=detected_pose.header,
@@ -90,8 +86,8 @@ class ClosestPersonDetector(object):
                     pose=detected_pose.pose
                 )
 
-                # Stop searching on a position match
-                if face_distance < self.position_match_threshold:
+                # If the leg detection is the closest face
+                if self.leg_detection_is_closest_face(detected_person):
                     break
 
         # Acquire a lock to the people and update the closest person's position
@@ -150,10 +146,10 @@ class ClosestPersonDetector(object):
         rate = rospy.Rate(self.publish_rate)
         while not rospy.is_shutdown():
             # Check to see if the information on a person's face is stale
-            if rospy.Time.now() - self.last_face_timestamp > self.face_remembrance_threshold:
-                with self.closest_person_lock:
-                    if self.closest_person is not None:
-                        self.closest_person.detection_context.pose_source = DetectionContext.POSE_FROM_LEGS
+            # if rospy.Time.now() - self.last_face_timestamp > self.face_remembrance_threshold:
+            #     with self.closest_person_lock:
+            #         if self.closest_person is not None:
+            #             self.closest_person.detection_context.pose_source = DetectionContext.POSE_FROM_LEGS
 
             # Otherwise, check to see if we should publish the latest detection
             with self.closest_person_lock:
