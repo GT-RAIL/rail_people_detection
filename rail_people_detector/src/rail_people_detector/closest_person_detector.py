@@ -126,14 +126,8 @@ class ClosestPersonDetector(object):
         # If the distance exceeds the threshold, then don't associate the face
         # with the leg
         with self.closest_person_lock:
-            if closest_face is None:
+            if closest_face is None or self.closest_person is None:
                 pass
-            elif self.closest_person is None:
-                self.last_face_timestamp = rospy.Time.now()
-                self.closest_person = Person(header=closest_face.header)
-                self.closest_person.pose.position = closest_face.pos
-                self.closest_person.pose.orientation.w = 1.0
-                self.closest_person.detection_context.pose_source = DetectionContext.POSE_FROM_FACE
             elif self.person_face_distance_func(self.closest_person, closest_face) < self.position_match_threshold:
                 self.last_face_timestamp = rospy.Time.now()
                 self.closest_person.pose.position = closest_face.pos
