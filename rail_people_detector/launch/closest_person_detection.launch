@@ -15,7 +15,6 @@
   <!-- Launch the closest person detector node -->
   <node name="rail_people_detector" pkg="rail_people_detector" type="closest_person_node" output="screen">
     <param name="desired_pose_frame" value="$(arg robot_base_frame)" />
-    <param name="face_remembrance_threshold" value="2.5" />
     <param name="position_match_threshold" value="1.0" />
     <param name="publish_rate" value="15.0" />
   </node>
