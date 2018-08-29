@@ -19,6 +19,8 @@ from people_msgs.msg import PositionMeasurementArray
 from leg_tracker.msg import PersonArray
 from rail_people_detection_msgs.msg import Person, DetectionContext
 
+from visualization_msgs.msg import Marker
+
 
 class ClosestPersonDetector(object):
     """
@@ -63,6 +65,8 @@ class ClosestPersonDetector(object):
         )
         self.leg_sub = rospy.Subscriber("people_tracked", PersonArray, self.leg_callback)
         self.closest_person_pub = rospy.Publisher('~closest_person', Person, queue_size=10)
+
+        self.debug_pub = rospy.Publisher("~debug", Marker, queue_size=1)
 
     def leg_callback(self, msg):
         closest_distance = np.inf
@@ -134,12 +138,32 @@ class ClosestPersonDetector(object):
                 closest_face.header = pos.header
                 closest_face.pos = pos.point
 
+        # Debug
+        if closest_face is not None:
+            marker = Marker(
+                header=closest_face.header,
+                ns="faces",
+                id=0,
+                type=Marker.SPHERE,
+                action=Marker.ADD
+            )
+            marker.pose.position = closest_face.pos
+            marker.pose.orientation.w = 1.
+            marker.scale.x = 1
+            marker.scale.y = 0.1
+            marker.scale.z = 0.1
+            marker.color.a = 1.0
+            marker.color.r = 0.0
+            marker.color.g = 1.0
+            marker.color.b = 0.0
+            self.debug_pub.publish(marker)
+
         # Now associate the closest face to the leg detection that it is closest
         # to
         closest_person = None
         with self.leg_detections_lock:
             for detected_person in self.leg_detections:
-                if self.person_face_distance_func(detected_person, closest_face) < self.position_match_threshold:
+                if closest_face is not None and self.person_face_distance_func(detected_person, closest_face) < self.position_match_threshold:
                     closest_person = detected_person
                     break
 
