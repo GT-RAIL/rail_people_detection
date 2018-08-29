@@ -150,8 +150,8 @@ class ClosestPersonDetector(object):
             if self.closest_person is not None and closest_person is not None:
                 rospy.logwarn("Current: {}({}), New: {}".format(
                     self.closest_person.id,
-                    self.person_face_distance_func(self.closest_person, closest_face)
-                    closest_person.id,
+                    self.person_face_distance_func(self.closest_person, closest_face),
+                    closest_person.id
                 ))
 
             if closest_person is None or self.closest_person is None:
