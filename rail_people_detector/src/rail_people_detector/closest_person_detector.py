@@ -66,7 +66,8 @@ class ClosestPersonDetector(object):
         self.leg_sub = rospy.Subscriber("people_tracked", PersonArray, self.leg_callback)
         self.closest_person_pub = rospy.Publisher('~closest_person', Person, queue_size=10)
 
-        self.debug_pub = rospy.Publisher("~debug", Marker, queue_size=1)
+        self.debug_pub1 = rospy.Publisher("~debug/1", Marker, queue_size=1)
+        self.debug_pub2 = rospy.Publisher("~debug/2", Marker, queue_size=1)
 
     def leg_callback(self, msg):
         closest_distance = np.inf
@@ -100,6 +101,25 @@ class ClosestPersonDetector(object):
                 # closest detections associations
                 if self.leg_detection_is_closest_face(detected_person):
                     closest_distance = -np.inf
+
+        # Debug
+        if closest_person is not None:
+            marker = Marker(
+                header=closest_person.header,
+                ns="debug",
+                id=1,
+                type=Marker.SPHERE,
+                action=Marker.ADD
+            )
+            marker.pose = closest_person.pose
+            marker.scale.x = 0.5
+            marker.scale.y = 0.5
+            marker.scale.z = 0.5
+            marker.color.a = 1.0
+            marker.color.r = 1.0
+            marker.color.g = 0.0
+            marker.color.b = 0.0
+            self.debug_pub2.publish(marker)
 
         # Acquire a lock to the people and update the closest person's position
         # We don't want to be staring at feet...
@@ -142,7 +162,7 @@ class ClosestPersonDetector(object):
         if closest_face is not None:
             marker = Marker(
                 header=closest_face.header,
-                ns="faces",
+                ns="debug",
                 id=0,
                 type=Marker.SPHERE,
                 action=Marker.ADD
@@ -156,7 +176,7 @@ class ClosestPersonDetector(object):
             marker.color.r = 0.0
             marker.color.g = 1.0
             marker.color.b = 0.0
-            self.debug_pub.publish(marker)
+            self.debug_pub1.publish(marker)
 
         # Now associate the closest face to the leg detection that it is closest
         # to
