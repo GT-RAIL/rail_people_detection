@@ -83,7 +83,7 @@ class ClosestPersonDetector(object):
                 face_distance = self.person_leg_distance_func(self.closest_person, detected_pose)
 
             if face_distance < self.position_match_threshold or person_distance < closest_distance:
-                closest_distance = distance
+                closest_distance = person_distance
                 closest_person = Person(
                     header=detected_pose.header,
                     id=str(detected_person.id),
@@ -137,7 +137,7 @@ class ClosestPersonDetector(object):
                 self.closest_person.pose.position = closest_face.pos
                 self.closest_person.pose.orientation.w = 1.0
                 self.closest_person.detection_context.pose_source = DetectionContext.POSE_FROM_FACE
-            elif person_face_distance_func(self.closest_person, closest_face) < self.position_match_threshold:
+            elif self.person_face_distance_func(self.closest_person, closest_face) < self.position_match_threshold:
                 self.last_face_timestamp = rospy.Time.now()
                 self.closest_person.pose.position = closest_face.pos
                 self.closest_person.detection_context.pose_source = DetectionContext.POSE_FROM_FACE
