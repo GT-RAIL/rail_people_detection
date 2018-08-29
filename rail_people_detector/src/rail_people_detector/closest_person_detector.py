@@ -47,6 +47,7 @@ class ClosestPersonDetector(object):
         self.person_face_distance_func = lambda A, B: np.sqrt(
             (A.pose.position.x - B.pos.x) ** 2
             + (A.pose.position.y - B.pos.y) ** 2
+            + (A.pose.position.z - B.pos.z) ** 2
         )
         self.leg_detection_is_closest_face = lambda detected_person: (
             self.closest_person is not None
