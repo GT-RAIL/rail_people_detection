@@ -10,7 +10,9 @@ find_package(catkin REQUIRED COMPONENTS
   rail_people_detection_msgs
   rail_people_detection_utils
   rospy
+  sensor_msgs
   std_msgs
+  tf
 )
 
 ## System dependencies are found with CMake's conventions
@@ -112,7 +114,6 @@ catkin_package(
     rail_object_detection_msgs
     rail_people_detection_msgs
     rospy
-    tf
 #  DEPENDS system_lib
 )
 
