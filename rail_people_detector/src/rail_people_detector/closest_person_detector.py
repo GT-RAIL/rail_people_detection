@@ -68,8 +68,9 @@ class ClosestPersonDetector(object):
 
         # Debug
         self.debug_enabled = rospy.get_param("~debug", False)
-        self.debug_pub1 = rospy.Publisher("~debug/1", Marker, queue_size=1)
-        self.debug_pub2 = rospy.Publisher("~debug/2", Marker, queue_size=1)
+        if self.debug_enabled:
+            self.debug_pub1 = rospy.Publisher("~debug/1", Marker, queue_size=1)
+            self.debug_pub2 = rospy.Publisher("~debug/2", Marker, queue_size=1)
 
     def leg_callback(self, msg):
         closest_distance = np.inf
