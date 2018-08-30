@@ -2,3 +2,7 @@
 	path = leg_tracker
 	url = git@github.com:petschekr/leg_tracker.git
 	branch = fetch
+[submodule "people"]
+	path = people
+	url = git@github.com:banerjs/people.git
+	branch = indigo-devel

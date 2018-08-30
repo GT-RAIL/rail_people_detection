@@ -20,6 +20,6 @@ if __name__ == "__main__":
    Initialize the node
    """
    log_lvl = rospy.get_param("/logger_lvl", 'INFO')
-   rospy.init_node('detector_node', log_level=log_lvls[log_lvl])
+   rospy.init_node('people_from_objects_node', log_level=log_lvls[log_lvl])
    detector = PersonDetector()
    detector.spin()
