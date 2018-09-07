@@ -51,9 +51,8 @@ cache:
 
 script:
   - echo "Preparing rail_object_detection_msgs"
-  - cd /tmp
-  - git clone https://github.com/GT-RAIL/rail_object_detection && cd rail_object_detection
-  - git checkout ${TRAVIS_BRANCH} || echo "Building default rail_object_detection branch"
+  - cd /tmp && git clone https://github.com/GT-RAIL/rail_object_detection && cd rail_object_detection
+  - git checkout ${TRAVIS_BRANCH} || echo "Building branch $(git symbolic-ref --short HEAD)"
   - mv /tmp/rail_object_detection/rail_object_detection_msgs ${TRAVIS_BUILD_DIR}/
   - echo "Running 64-bit test"
   - docker run -i --rm -v ${TRAVIS_BUILD_DIR}:/src -w /src ubuntu:trusty /bin/bash -c "linux64 /src/bin/travis_build.sh"
