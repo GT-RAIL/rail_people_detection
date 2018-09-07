@@ -52,7 +52,7 @@ cache:
 script:
   - echo "Preparing rail_object_detection_msgs"
   - cd /tmp
-  - git clone https://github.com/GT-RAIL/rail_object_detection
+  - git clone https://github.com/GT-RAIL/rail_object_detection && cd rail_object_detection
   - git checkout ${TRAVIS_BRANCH} || echo "Building default rail_object_detection branch"
   - mv /tmp/rail_object_detection/rail_object_detection_msgs ${TRAVIS_BUILD_DIR}/
   - echo "Running 64-bit test"
