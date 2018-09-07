@@ -1,5 +1,7 @@
 # RAIL People Detection Metapackage
 
+[![Build Status](https://travis-ci.org/GT-RAIL/rail_people_detection.svg?branch=develop)](https://travis-ci.org/GT-RAIL/rail_people_detection)
+
 This repository contains nodes and packages that we use for person detection. All methods of person detection created by us publish people in the message formats defined in [`rail_people_detection_msgs`](rail_people_detection_msgs/). In addition, this repository contains third party people detection packages and metapackages as submodules. The nodes that we, RAIL, have written often aggregate the output from the thirdparty nodes into a more meaningful messages/representations.
 
 
