@@ -1,14 +1,18 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(rail_people_detection_msgs)
+project(rail_people_detector)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
-  rail_object_detection_msgs
   geometry_msgs
-  message_generation
+  rail_object_detection_msgs
+  rail_people_detection_msgs
+  rail_people_detection_utils
+  rospy
+  sensor_msgs
   std_msgs
+  tf
 )
 
 ## System dependencies are found with CMake's conventions
@@ -18,7 +22,7 @@ find_package(catkin REQUIRED COMPONENTS
 ## Uncomment this if the package has a setup.py. This macro ensures
 ## modules and global scripts declared therein get installed
 ## See http://ros.org/doc/api/catkin/html/user_guide/setup_dot_py.html
-# catkin_python_setup()
+catkin_python_setup()
 
 ################################################
 ## Declare ROS messages, services and actions ##
@@ -45,19 +49,18 @@ find_package(catkin REQUIRED COMPONENTS
 ##   * add every package in MSG_DEP_SET to generate_messages(DEPENDENCIES ...)
 
 ## Generate messages in the 'msg' folder
-add_message_files(
-  FILES
-  Centroid.msg
-  Person.msg
-  People.msg
-  DetectionContext.msg
-)
+# add_message_files(
+#   FILES
+#   Centroid.msg
+#   Person.msg
+#   People.msg
+# )
 
 ## Generate services in the 'srv' folder
-add_service_files(
-  FILES
-  CentroidPositionQuery.srv
-)
+# add_service_files(
+#   FILES
+#   CentroidPositionQuery.srv
+# )
 
 ## Generate actions in the 'action' folder
 # add_action_files(
@@ -67,12 +70,12 @@ add_service_files(
 # )
 
 ## Generate added messages and services with any dependencies listed here
-generate_messages(
-  DEPENDENCIES
-  geometry_msgs
-  rail_object_detection_msgs
-  std_msgs
-)
+# generate_messages(
+#   DEPENDENCIES
+#   geometry_msgs
+#   rail_object_detector
+#   std_msgs
+# )
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##
@@ -106,10 +109,11 @@ generate_messages(
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES person_detector
- CATKIN_DEPENDS
-   geometry_msgs
-   rail_object_detection_msgs
-   std_msgs
+  CATKIN_DEPENDS
+    geometry_msgs
+    rail_object_detection_msgs
+    rail_people_detection_msgs
+    rospy
 #  DEPENDS system_lib
 )
 
@@ -120,9 +124,9 @@ catkin_package(
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 # include_directories(include)
-# include_directories(
-#   ${catkin_INCLUDE_DIRS}
-# )
+include_directories(
+  ${catkin_INCLUDE_DIRS}
+)
 
 ## Declare a C++ library
 # add_library(person_detector
@@ -147,13 +151,12 @@ catkin_package(
 # )
 
 # Install the python scripts at the appropriate location
-# catkin_install_python(PROGRAMS nodes/centroid_to_pos
-#   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-# )
-
-# catkin_install_python(PROGRAMS nodes/detector_node
-#   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-# )
+catkin_install_python(PROGRAMS nodes/people_from_objects_node
+  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
+catkin_install_python(PROGRAMS nodes/closest_person_node
+  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
 
 #############
 ## Install ##

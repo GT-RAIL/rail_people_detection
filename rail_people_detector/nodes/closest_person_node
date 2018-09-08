@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from rail_person_detector.person_detector import PersonDetector
+from rail_people_detector.closest_person_detector import ClosestPersonDetector
 import rospy
 
 log_lvls = {
@@ -20,6 +20,6 @@ if __name__ == "__main__":
    Initialize the node
    """
    log_lvl = rospy.get_param("/logger_lvl", 'INFO')
-   rospy.init_node('detector_node', log_level=log_lvls[log_lvl])
-   PersonDetector()
-   rospy.spin()
+   rospy.init_node('closest_person_node', log_level=log_lvls[log_lvl])
+   detector = ClosestPersonDetector()
+   detector.spin()

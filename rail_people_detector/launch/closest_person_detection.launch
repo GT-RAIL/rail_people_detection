@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launch>
+  <!-- Launch file args -->
+  <arg name="start_all" default="false" />
+  <arg name="face_detector" default="$(arg start_all)" />
+  <arg name="leg_tracker" default="$(arg start_all)" />
+
+  <!-- The tf frame relative to which the closest person will be calculated -->
+  <arg name="robot_frame" default="base_link" />
+  <arg name="debug" default="false" />
+
+  <!--
+  Following args `camera` and `depth_ns` together consist the namespace prefix, and the args `*_topic` make the body of the topic for face_detector node to subscribe. In the example below, you're subscribing to:
+
+        /head_camera/rgb/image_rect_color
+        /head_camera/depth_registered/image_raw
+   -->
+  <arg name="camera" default="head_camera" />
+  <arg name="rgb_ns" default="rgb" />
+  <arg name="depth_ns" default="depth_registered" />
+  <arg name="image_topic" default="image_rect_color" />
+  <arg name="depth_topic" default="image_raw" />
+  <arg name="camera_frame" default="head_camera_rgb_optical_frame" />
+
+  <!-- Classifier for the face detector -->
+  <arg name="paramfile_classifier" default="$(find face_detector)/param/classifier.yaml"/>
+
+  <!-- Launch the face detector -->
+  <include file="$(find rail_people_detector)/launch/wg_face_detector.launch" if="$(arg face_detector)">
+    <arg name="camera" value="$(arg camera)" />
+    <arg name="rgb_ns" value="$(arg rgb_ns)" />
+    <arg name="image_topic" value="$(arg image_topic)" />
+    <arg name="depth_topic" value="$(arg depth_topic)" />
+    <arg name="depth_ns" value="$(arg depth_ns)" />
+    <arg name="fixed_frame" value="$(arg camera_frame)" />
+    <arg name="paramfile_classifier" value="$(arg paramfile_classifier)"/>
+    <arg name="debug" value="$(arg debug)" />
+  </include>
+
+  <!-- Launch the leg detector -->
+  <include file="$(find rail_people_detector)/launch/icra_leg_tracker.launch" if="$(arg leg_tracker)">
+  </include>
+
+  <!-- Launch the closest person detector node -->
+  <node name="rail_people_detector" pkg="rail_people_detector" type="closest_person_node" output="screen">
+    <param name="desired_pose_frame" value="$(arg robot_frame)" />
+    <param name="position_match_threshold" value="1.0" />
+    <param name="publish_rate" value="15.0" />
+    <param name="debug" value="$(arg debug)" />
+  </node>
+</launch>

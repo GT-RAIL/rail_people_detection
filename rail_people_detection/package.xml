@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>rail_people_detection</name>
+  <version>1.0.0</version>
+  <description>People Detection methods used in the RAIL Lab</description>
+
+  <author email="banerjs.sid@gmail.com">Siddhartha Banerjee</author>
+  <maintainer email="banerjs.sid@gmail.com">Siddhartha Banerjee</maintainer>
+
+  <license>MIT</license>
+
+  <url type="website">http://ros.org/wiki/rail_people_detection</url>
+  <url type="bugtracker">https://github.com/GT-RAIL/rail_people_detection/issues</url>
+  <url type="repository">https://github.com/GT-RAIL/rail_people_detection</url>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <exec_depend>rail_people_detector</exec_depend>
+  <exec_depend>rail_people_detection_msgs</exec_depend>
+  <exec_depend>rail_people_detection_utils</exec_depend>
+
+  <!-- Willow Garage's people detectors and the ICRA leg detector -->
+  <exec_depend>face_detector</exec_depend>
+  <exec_depend>leg_tracker</exec_depend>
+
+  <export>
+    <metapackage />
+  </export>
+</package>

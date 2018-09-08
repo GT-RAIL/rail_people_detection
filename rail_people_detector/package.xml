@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>rail_person_detector</name>
-  <version>0.1.0</version>
-  <description>The rail_person_detector package</description>
+  <name>rail_people_detector</name>
+  <version>1.0.0</version>
+  <description>The rail_people_detector package</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag -->
   <!-- Example:  -->
@@ -42,13 +42,17 @@
   <buildtool_depend>catkin</buildtool_depend>
 
   <depend>geometry_msgs</depend>
-  <depend>rail_object_detector_msgs</depend>
+  <depend>rail_object_detection_msgs</depend>
   <depend>rail_people_detection_msgs</depend>
+  <depend>rail_people_detection_utils</depend>
   <depend>rospy</depend>
+  <depend>sensor_msgs</depend>
   <depend>std_msgs</depend>
+  <depend>tf</depend>
 
-  <exec_depend>sensor_msgs</exec_depend>
-  <exec_depend>tf</exec_depend>
+  <exec_depend>face_detector</exec_depend>
+  <exec_depend>leg_tracker</exec_depend>
+  <exec_depend>map_laser</exec_depend>
   <exec_depend>visualization_msgs</exec_depend>
 
 

@@ -1,3 +1,8 @@
-geometry_msgs/PointStamped position			# Position of detected person
-std_msgs/Header bb_header					# Header for the bounding box
-rail_object_detector_msgs/Object bounding_box	# Bounding Box of detected person
+std_msgs/Header header                          # Header
+string id                                       # ID of the detected person
+geometry_msgs/Pose pose			                # Pose of detected person
+geometry_msgs/Twist velocity                    # Velocity of the detected person
+rail_object_detection_msgs/Object bounding_box	# Bounding Box of detected person
+
+# Additional information telling us how much we know about the person
+DetectionContext detection_context
