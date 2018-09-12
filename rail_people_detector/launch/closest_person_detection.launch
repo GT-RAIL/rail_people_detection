@@ -34,7 +34,7 @@
     <arg name="depth_ns" value="$(arg depth_ns)" />
     <arg name="fixed_frame" value="$(arg camera_frame)" />
     <arg name="paramfile_classifier" value="$(arg paramfile_classifier)"/>
-    <arg name="debug" value="$(arg debug)" />
+    <arg name="debug" value="false" />
   </include>
 
   <!-- Launch the leg detector -->
