@@ -5,7 +5,7 @@ set -ex
 # Add a ROS user if this is docker and you logged in as root
 if [ "$(whoami)" == "root" ]
 then
-    apt-get update -qq && DEBIAN_FRONTEND=noninteractive apt-get install -yq sudo lsb-release gnupg apt-transport-https
+    apt-get update -qq && DEBIAN_FRONTEND=noninteractive apt-get install -yq sudo lsb-release gnupg apt-transport-https tzdata
     TEST_DIR="/test"
     mkdir $TEST_DIR
     cp -r * $TEST_DIR
