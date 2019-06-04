@@ -5,7 +5,7 @@ set -ex
 # Add a ROS user if this is docker and you logged in as root
 if [ "$(whoami)" == "root" ]
 then
-    apt-get update -qq && apt-get install -yq sudo lsb-release
+    apt-get update -qq && apt-get install -yq sudo lsb-release gnupg apt-transport-https
     TEST_DIR="/test"
     mkdir $TEST_DIR
     cp -r * $TEST_DIR
@@ -28,7 +28,7 @@ ROS_PARALLEL_JOBS='-j8 -l6'
 
 # Install ROS
 sudo apt-get update -qq
-sudo apt-get install -y wget apt-transport-https
+sudo apt-get install -y wget
 sudo sh -c "echo \"deb http://packages.ros.org/ros/ubuntu $ROS_CI_DESKTOP main\" > /etc/apt/sources.list.d/ros-latest.list"
 wget http://packages.ros.org/ros.key -O - | sudo apt-key add -
 sudo apt-get update -qq
