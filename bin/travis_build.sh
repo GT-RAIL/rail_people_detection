@@ -5,7 +5,7 @@ set -ex
 # Add a ROS user if this is docker and you logged in as root
 if [ "$(whoami)" == "root" ]
 then
-    apt update && apt install sudo lsb-release
+    apt update && apt install -yq sudo lsb-release
     TEST_DIR="/test"
     mkdir $TEST_DIR
     cp -r * $TEST_DIR
