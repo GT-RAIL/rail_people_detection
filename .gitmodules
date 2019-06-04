@@ -1,8 +1,8 @@
 [submodule "leg_tracker"]
 	path = leg_tracker
-	url = https://github.com/petschekr/leg_tracker.git
+	url = https://github.com/GT-RAIL/leigh_leg_tracker.git
 	branch = fetch
 [submodule "people"]
 	path = people
-	url = https://github.com/banerjs/people.git
-	branch = indigo-devel
+	url = https://github.com/GT-RAIL/wg-people.git
+	branch = kinetic
