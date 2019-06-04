@@ -18,7 +18,7 @@ then
 fi
 
 # Environment variables
-ROS_DISTRO=indigo
+ROS_DISTRO=melodic
 ROS_CI_DESKTOP="`lsb_release -cs`"  # e.g. [precise|trusty|...]
 CI_SOURCE_PATH=$(pwd)
 ROSINSTALL_FILE=$CI_SOURCE_PATH/dependencies.rosinstall
