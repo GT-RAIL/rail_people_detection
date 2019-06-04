@@ -2,6 +2,9 @@
 # Build from travis translated into a shell script
 set -ex
 
+# Non interactive environment here
+export DEBIAN_FRONTEND=noninteractive
+
 # Add a ROS user if this is docker and you logged in as root
 if [ "$(whoami)" == "root" ]
 then
