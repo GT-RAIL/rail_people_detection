@@ -2,13 +2,10 @@
 # Build from travis translated into a shell script
 set -ex
 
-# Non interactive environment here
-export DEBIAN_FRONTEND=noninteractive
-
 # Add a ROS user if this is docker and you logged in as root
 if [ "$(whoami)" == "root" ]
 then
-    apt-get update -qq && apt-get install -yq sudo lsb-release gnupg apt-transport-https
+    apt-get update -qq && DEBIAN_FRONTEND=noninteractive apt-get install -yq sudo lsb-release gnupg apt-transport-https
     TEST_DIR="/test"
     mkdir $TEST_DIR
     cp -r * $TEST_DIR
@@ -31,17 +28,17 @@ ROS_PARALLEL_JOBS='-j8 -l6'
 
 # Install ROS
 sudo apt-get update -qq
-sudo apt-get install -y wget
+DEBIAN_FRONTEND=noninteractive sudo apt-get install -y wget
 sudo sh -c "echo \"deb http://packages.ros.org/ros/ubuntu $ROS_CI_DESKTOP main\" > /etc/apt/sources.list.d/ros-latest.list"
 wget http://packages.ros.org/ros.key -O - | sudo apt-key add -
 sudo apt-get update -qq
-sudo apt-get install -y python-catkin-pkg python-rosdep python-wstool ros-$ROS_DISTRO-catkin build-essential cmake pkg-config
+DEBIAN_FRONTEND=noninteractive sudo apt-get install -y python-catkin-pkg python-rosdep python-wstool ros-$ROS_DISTRO-catkin build-essential cmake pkg-config
 source /opt/ros/$ROS_DISTRO/setup.bash
 
 # Prepare rosdep to install dependencies.
 sudo rosdep init
 rosdep update
-sudo apt-get install -y libeigen3-dev
+DEBIAN_FRONTEND=noninteractive sudo apt-get install -y libeigen3-dev
 
 # Create and install the catkin workspace
 mkdir -p ~/catkin_ws/src
